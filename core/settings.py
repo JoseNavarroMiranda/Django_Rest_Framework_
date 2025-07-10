@@ -43,6 +43,8 @@ DJANGO_APPS = [
 ]
 PROJECT_APPS=[
     
+    'apps.blog',
+    
     
 ]
 
