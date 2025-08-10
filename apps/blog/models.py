@@ -37,6 +37,7 @@ class Post(models.Model):
         ("published", "Published"),
         ("archived", "Archived"),
         )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False )
     title = models.CharField(max_length=90)
     description = models.CharField(max_length=128)
     content = RichTextField(blank=True, null=True)
