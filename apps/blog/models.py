@@ -30,6 +30,8 @@ class Post(models.Model):
     
     class PostObjects(models.Manager):
         def get_queryset(self):
+            """Funcion que permite filtrar a frontend solo por los post que estaran como 'published'"""
+            
             return super().get_queryset().filter(status='published')
             
     status_options=(
