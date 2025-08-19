@@ -3,6 +3,7 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
+from apps.blog.utils import get_client_ip
 from django_ckeditor_5.fields import CKEditor5Field
 
 
@@ -110,6 +111,14 @@ class PostAnalitics(models.Model):
         """Esta funcion incrementa el conteo de impresiones del post"""
         self.impressions += 1
         self._update_click_through_rate()
+    
+    def increment_view(self, request):
+        ip_address = get_client_ip(request)
+        
+        if not PostView.objects.filter(post=self.post, ip_address=ip_address).exists():
+            PostView.objects.create(post=self.post, ip_address=ip_address)
+            self.views += 1
+            self.save()
 
         
 class Heading(models.Model):    
