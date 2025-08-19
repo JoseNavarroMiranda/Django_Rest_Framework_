@@ -26,6 +26,7 @@ class Category(models.Model):
     def __str__(self):
         return self.name
 
+
 class Post(models.Model):
     
     class PostObjects(models.Manager):
@@ -53,6 +54,10 @@ class Post(models.Model):
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    #Campo que permite contar las vistas del post, de manera concecutiva sin tomar en cuenta las ips de un equipo
+    # views = models.IntegerField(default=0)
+    
     #status del post
     status = models.CharField(
         max_length=10,
@@ -66,6 +71,14 @@ class Post(models.Model):
     
     def __str__(self):
         return self.title
+    
+
+class PostView(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='post_view' )
+    ip_address = models.GenericIPAddressField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    
 
 class Heading(models.Model):    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False )    
