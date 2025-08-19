@@ -10,18 +10,18 @@ from .utils import get_client_ip
 #     serializer_class = PostListSerializers
 
 
+# class PostDetailView(RetrieveAPIView):
+#     queryset = Post.postobjects.all()
+#     serializer_class = PostSerializers
+#     lookup_field = "slug"
+
+
 class PostListView(APIView):
     def get(self, request, *args, **kwargs):
         """"Funcion donde te permite listar los posts, se toman todos los posts y se serializan"""
         posts = Post.objects.all()
         serialized_posts = PostListSerializers(posts, many=True).data
         return Response(serialized_posts)
-
-    
-# class PostDetailView(RetrieveAPIView):
-#     queryset = Post.postobjects.all()
-#     serializer_class = PostSerializers
-#     lookup_field = "slug"
 
     
 class PostDetailView(RetrieveAPIView):

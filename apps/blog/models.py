@@ -78,8 +78,40 @@ class PostView(models.Model):
     post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='post_view' )
     ip_address = models.GenericIPAddressField()
     timestamp = models.DateTimeField(auto_now_add=True)
-    
 
+#Modelo de analiticas para la recomendaciones de los posts
+class PostAnalitics(models.Model):
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # relaciona el post con las analiticas
+    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='post_analitics')
+    # campos para las analiticas
+    views = models.PositiveIntegerField(default=0)
+    # impresion para incrementar el conteo de vistas
+    impressions = models.PositiveIntegerField(default=0)
+    # Define el numero de clicks y la tasa de clics (distinta que sea vista por URL)
+    clicks = models.PositiveIntegerField(default=0)
+    # Tasa de clics (CTR) calculada como clicks / impresiones
+    click_through_rate = models.FloatField(default=0.0)
+    #Guarda el tiempo promedio que un usuario pasa en la pagina del Post
+    average_time_on_page = models.FloatField(default=0.0)
+  
+    def increment_click(self):
+        """Esta funciona incrementa el cocnteo de clicks del post"""
+        self.clicks += 1
+        self._update_click_through_rate()
+    
+    def _update_click_through_rate(self):
+        """Esta funcion actualiza la tasa de clics (CTR)"""
+        if self.impressions > 0:
+            self.click_through_rate = (self.clicks / self.impressions) * 100
+            
+    def increment_impression(self):
+        """Esta funcion incrementa el conteo de impresiones del post"""
+        self.impressions += 1
+        self._update_click_through_rate()
+
+        
 class Heading(models.Model):    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False )    
     post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='headings')
