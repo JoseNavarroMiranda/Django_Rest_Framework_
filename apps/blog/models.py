@@ -3,15 +3,15 @@ import uuid
 from django.db import models
 from django.utils import timezone
 from django.utils.text import slugify
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 def blog_thumbnail_directory(instance, filename):
-    # Esta funcion se utiliza para crear un directorio unico para cada imagen
+    """Esta funcion se utiliza para crear un directorio unico para cada imagen"""
     return "blog/{0}/{1}".format(instance.title, filename)
 
 def category_thumbnail_directory(instance, filename):
-    # Esta funcion se utiliza para crear un directorio unico para cada imagen de categoria
+    """Esta funcion se utiliza para crear un directorio unico para cada imagen de categoria"""
     return "blog_categories/{0}/{1}".format(instance.name, filename)
 
 class Category(models.Model):
@@ -42,7 +42,7 @@ class Post(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False )
     title = models.CharField(max_length=90)
     description = models.CharField(max_length=128)
-    content = RichTextField(blank=True, null=True)
+    content = CKEditor5Field('content', config_name='default')
     #donde se guardan las imagenes
     thumbnail = models.ImageField(upload_to=blog_thumbnail_directory, blank=True, null=True)
     #Keyword lo utilizo para crear un buscador de articulos

@@ -2,12 +2,31 @@ from rest_framework import serializers
 
 from .models import Category, Post, Heading
 
+
+class CategorySerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = "__all__"
+
+
+class CategoryListSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = [
+            'name',
+            'slug'
+            ]
+
+
 class PostSerializers(serializers.ModelSerializer):
+    category = CategoryListSerializers()
     class Meta:
         model = Post
         fields = "__all__"
 
+            
 class PostListSerializers(serializers.ModelSerializer):
+    category = CategoryListSerializers()
     class Meta:
         model = Post
         fields = ["id", 
@@ -18,10 +37,6 @@ class PostListSerializers(serializers.ModelSerializer):
                 "category", 
                 ]
     
-class CategorySerializers(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = "__all__"
     
 class HeadingSerializers(serializers.ModelSerializer):
     class Meta:

@@ -51,17 +51,25 @@ PROJECT_APPS=[
 THIRD_PARTY_APPS = [
     'rest_framework',
     'channels',
-    'ckeditor',
-    'ckeditor_uploader',
-    
-    
-    
+    'django_ckeditor_5',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
-CKEDITOR_CONFIG = {"default":{"toolbar": "full","autoParagraph": False}}
-CKEDITOR_UPLOAD_PATH = "media/"
-
+CKEDITOR_5_CONFIGS = {
+    "default": {
+        "language": "es",
+        "placeholder": "Escribe aquí tu contenido…",
+        "toolbar": [
+            "heading", "|",
+            "bold", "italic", "underline", "|",
+            "link", "blockQuote", "insertTable", "|",
+            "bulletedList", "numberedList", "|",
+            "undo", "redo"
+        ],
+        "table": {"contentToolbar": ["tableColumn", "tableRow", "mergeTableCells"]},
+        "removePlugins": ["MediaEmbedToolbar"],
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
