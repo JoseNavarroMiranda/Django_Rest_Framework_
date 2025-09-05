@@ -52,6 +52,7 @@ THIRD_PARTY_APPS = [
     'rest_framework',
     'channels',
     'django_ckeditor_5',
+    'django_celery_results',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -165,7 +166,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+        "rest_framework.permissions.AllowAny",
     ]
 }
 
@@ -188,3 +189,24 @@ CACHES = {
 }
 
 CHANNELS_ALLOWED_ORIGINS = "http://localhost:3000"
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+CELERY_TIMEZONE = "America/Mexico_City"
+
+CELERY_BROKER_URL = env("REDIS_URL")
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'visibility_timeout': 3600,
+    'socket_timeout': 5,
+    'retry_on_timeout': True,
+    
+}
+
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHES_BACKEND = 'default'
+
+CELERY_IMPORTS = (
+    'core.tasks',
+    'apps.blog.tasks'
+)

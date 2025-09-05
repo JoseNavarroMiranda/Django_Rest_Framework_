@@ -1,10 +1,13 @@
 import uuid
 
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.text import slugify
 from apps.blog.utils import get_client_ip
 from django_ckeditor_5.fields import CKEditor5Field
+
 
 
 def blog_thumbnail_directory(instance, filename):
@@ -76,7 +79,7 @@ class Post(models.Model):
 
 class PostView(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='post_view' )
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_view' )
     ip_address = models.GenericIPAddressField()
     timestamp = models.DateTimeField(auto_now_add=True)
 
@@ -85,7 +88,7 @@ class PostAnalitics(models.Model):
     
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     # relaciona el post con las analiticas
-    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='post_analitics')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='post_analitics')
     # campos para las analiticas
     views = models.PositiveIntegerField(default=0)
     # impresion para incrementar el conteo de vistas
@@ -100,16 +103,19 @@ class PostAnalitics(models.Model):
     def increment_click(self):
         """Esta funciona incrementa el cocnteo de clicks del post"""
         self.clicks += 1
+        self.save()
         self._update_click_through_rate()
     
     def _update_click_through_rate(self):
         """Esta funcion actualiza la tasa de clics (CTR)"""
         if self.impressions > 0:
             self.click_through_rate = (self.clicks / self.impressions) * 100
+            self.save()
             
     def increment_impression(self):
         """Esta funcion incrementa el conteo de impresiones del post"""
         self.impressions += 1
+        self.save()
         self._update_click_through_rate()
     
     def increment_view(self, request):
@@ -123,7 +129,7 @@ class PostAnalitics(models.Model):
         
 class Heading(models.Model):    
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False )    
-    post = models.ForeignKey(Post, on_delete=models.PROTECT, related_name='headings')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='headings')
     title = models.CharField(max_length=255)
     slug = models.CharField(max_length=255)
     level = models.IntegerField(
@@ -145,3 +151,8 @@ class Heading(models.Model):
         if not self.slug:
             self.slug = slugify(self.title)
         return super().save(*args, **kwargs)
+
+@receiver(post_save, sender=Post)
+def create_post_analytics(sender, instance, created, **kwargs):
+    if created:
+        PostAnalitics.objects.create(post=instance)
