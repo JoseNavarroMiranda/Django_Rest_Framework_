@@ -100,17 +100,21 @@ class PostAnalitics(models.Model):
     #Guarda el tiempo promedio que un usuario pasa en la pagina del Post
     average_time_on_page = models.FloatField(default=0.0)
   
+    def _update_click_through_rate(self):
+        """Esta funcion actualiza la tasa de clics (CTR)"""
+        if self.impressions > 0:
+            self.click_through_rate = (self.clicks / self.impressions) * 100
+        else:
+            self.click_through_rate = 0    
+        self.save()
+            
+            
     def increment_click(self):
         """Esta funciona incrementa el cocnteo de clicks del post"""
         self.clicks += 1
         self.save()
         self._update_click_through_rate()
     
-    def _update_click_through_rate(self):
-        """Esta funcion actualiza la tasa de clics (CTR)"""
-        if self.impressions > 0:
-            self.click_through_rate = (self.clicks / self.impressions) * 100
-            self.save()
             
     def increment_impression(self):
         """Esta funcion incrementa el conteo de impresiones del post"""
@@ -118,9 +122,7 @@ class PostAnalitics(models.Model):
         self.save()
         self._update_click_through_rate()
     
-    def increment_view(self, request):
-        ip_address = get_client_ip(request)
-        
+    def increment_view(self, ip_address):        
         if not PostView.objects.filter(post=self.post, ip_address=ip_address).exists():
             PostView.objects.create(post=self.post, ip_address=ip_address)
             self.views += 1

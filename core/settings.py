@@ -25,6 +25,8 @@ environ.Env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret! 'django-insecure--aks_f*z1oe$-v$dh*no=r)g+m*sx#l68_xaeuy=v4%vt1)_c3'
 SECRET_KEY = env("SECRET_KEY")
 
+VALID_API_KEYS = env.str("VALID_API_KEYS").split(",")
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -213,5 +215,5 @@ CELERY_IMPORTS = (
     'apps.blog.tasks'
 )
 
-CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DataScheduler"
+CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {}
