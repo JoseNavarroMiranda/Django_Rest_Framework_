@@ -1,6 +1,7 @@
 from core.permissions import HasValidAPIKEY
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.views import APIView
+from rest_framework_api.views import StandardAPIView 
 from rest_framework import permissions
 from rest_framework.response import Response 
 from rest_framework.exceptions import NotFound, APIException
@@ -32,7 +33,7 @@ redis_client = redis.StrictRedis(host=settings.REDIS_HOST, port=6379, db=0)
 #     lookup_field = "slug"
 
 
-class PostListView(APIView):
+class PostListView(StandardAPIView):
     permission_classes = [HasValidAPIKEY]
     #metodo decorativo para que se actualice la informacion en 1 min
     def get(self, request, *args, **kwargs):
@@ -44,7 +45,7 @@ class PostListView(APIView):
                 #incrementa impresiones en Redis para los posts del cache
                 for post in cached_posts:
                     redis_client.incr(f"post:impressions:{post['id']}")
-                return Response(cached_posts)
+                return self.paginate(request,cached_posts)
             
             #obrenemos los post de la base de datos si no estan en cache
             posts = Post.postobjects.all()
@@ -66,7 +67,7 @@ class PostListView(APIView):
         except Exception as e:
             raise APIException(detail=F"An unexpected error ocurred: {str(e)}")
         
-        return Response(serialized_posts)
+        return self.paginate(request, serialized_posts)
 
     
 class PostDetailView(RetrieveAPIView):

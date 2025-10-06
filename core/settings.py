@@ -52,10 +52,11 @@ PROJECT_APPS=[
 
 THIRD_PARTY_APPS = [
     'rest_framework',
+    'rest_framework_api',
     'channels',
     'django_ckeditor_5',
     'django_celery_results',
-    'django_celery_beat'
+    'django_celery_beat',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
