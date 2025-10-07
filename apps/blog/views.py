@@ -45,7 +45,7 @@ class PostListView(StandardAPIView):
                 #incrementa impresiones en Redis para los posts del cache
                 for post in cached_posts:
                     redis_client.incr(f"post:impressions:{post['id']}")
-                return self.paginate(request,cached_posts)
+                return self.paginate_response_with_extra(request ,cached_posts, extra_data="Informacion extra para los posts")
             
             #obrenemos los post de la base de datos si no estan en cache
             posts = Post.postobjects.all()
@@ -67,15 +67,18 @@ class PostListView(StandardAPIView):
         except Exception as e:
             raise APIException(detail=F"An unexpected error ocurred: {str(e)}")
         
-        return self.paginate(request, serialized_posts)
+        return self.paginate_response_with_extra(request, serialized_posts, extra_data="Informacion extra para los posts")
 
     
-class PostDetailView(RetrieveAPIView):
+class PostDetailView(StandardAPIView):
     permission_classes = [HasValidAPIKEY]
 
-    def get(self, request, slug):
+    def get(self, request):
         """Funcion donde te permite ver el detalle de un post, se toma el slug del post y se serializa"""
         ip_address = get_client_ip(request)
+        
+        slug = request.query_params.get("slug")
+        
         try:
             #Verificar que los datos esten en cache
             cached_posts = cache.get(f"post_detail:{slug}")
@@ -98,18 +101,23 @@ class PostDetailView(RetrieveAPIView):
             raise NotFound(detail="The requested post do not exist")
         except Exception as e:
             raise APIException(detail=f"An unexpected error ocurred: {str(e)}")
-        return Response(serialized_post)
+        return self.response(serialized_post)
     
     
-class PostHeadingsView(ListAPIView):
+class PostHeadingsView(StandardAPIView):
     permission_classes = [HasValidAPIKEY]
-    serializer_class = HeadingSerializers
-    def get_queryset(self):
-        post_slug = self.kwargs.get("slug")
-        return Heading.objects.filter(post__slug=post_slug)
+    def get(self, request):
+        post_slug = request.query_params.get("slug")
+        heading_objects = Heading.objects.filter(post__slug=post_slug)
+        serialized_data = HeadingSerializers(heading_objects, many=True).data
+        return self.response(serialized_data)
+    # serializer_class = HeadingSerializers
+    # def get_queryset(self):
+    #     post_slug = self.kwargs.get("slug")
+    #     return Heading.objects.filter(post__slug=post_slug)
 
 
-class IncrementPostClickView(APIView):
+class IncrementPostClickView(StandardAPIView):
     permission_classes = [HasValidAPIKEY]
     def post(self, request):
         """ 
@@ -127,7 +135,7 @@ class IncrementPostClickView(APIView):
         except Exception as e:
             raise APIException(detail=f"An unexpected error ocurred while updating post analytics: {str(e)}")
         
-        return Response({
+        return self.response({
             "Message": "Click incremented succesfully",
             "clicks" : post_analitics.clicks
         })

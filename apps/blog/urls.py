@@ -8,6 +8,6 @@ from .views import (PostListView,
 urlpatterns = [
     path('posts/', PostListView.as_view(), name='post-list'),
     path('posts/increment_clicks/', IncrementPostClickView.as_view(), name='increment-post-click'),
-    path('posts/<slug>/', PostDetailView.as_view(), name='post-detail'),
-    path('posts/<slug:slug>/headings/', PostHeadingsView.as_view(), name='post-headings'),
+    path('posts/', PostDetailView.as_view(), name='post-detail'),
+    path('posts/headings/', PostHeadingsView.as_view(), name='post-headings'),
 ]
