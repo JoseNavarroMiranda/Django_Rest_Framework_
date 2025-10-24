@@ -17,12 +17,15 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
-environ.Env.read_env()
+env_file = BASE_DIR / "core" / ".env"
+if env_file.exists():
+    env.read_env(env_file)
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret! 'django-insecure--aks_f*z1oe$-v$dh*no=r)g+m*sx#l68_xaeuy=v4%vt1)_c3'
+# SECURITY WARNING: keep the secret key used in production secret! 'django---aks_f*z1oe$-v$dh*no=r)g+m*sx#l68_xaeuy=v4%vt1)_c3'
 SECRET_KEY = env("SECRET_KEY")
 
 VALID_API_KEYS = env.str("VALID_API_KEYS").split(",")
@@ -57,6 +60,7 @@ THIRD_PARTY_APPS = [
     'django_ckeditor_5',
     'django_celery_results',
     'django_celery_beat',
+    'storages',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
@@ -106,7 +110,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'core.wsgi.application'
-ASGI_APLICATION = 'core.asgi.aplication'
+ASGI_APPLICATION = 'core.asgi.application'
 
 
 # Database
@@ -218,3 +222,10 @@ CELERY_IMPORTS = (
 
 CELERY_BEAT_SCHEDULER = "django_celery_beat.schedulers:DatabaseScheduler"
 CELERY_BEAT_SCHEDULE = {}
+
+
+AWS_ACCESS_KEY_ID=env("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY=env("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME=env("AWS_STORAGE_BUCKET_NAME")
+AWS_S3_REGION_NAME=env("AWS_S3_REGION_NAME")
+AWS_S3_CUSTOM_DOMAIN="{AWS_STORAGE_BUCKET_NAME}.s3{AWS_S3_REGION_NAME}.amazonaws.com"
